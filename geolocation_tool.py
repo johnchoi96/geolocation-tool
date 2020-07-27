@@ -2,6 +2,7 @@
 
 from Address import *
 import requests
+import sys
 
 
 # =====================
@@ -24,7 +25,10 @@ def jsonRequest(jsonUrl):
     response = requests.get(jsonUrl)
     jsonResponse = response.json()
 
-    results = jsonResponse["results"]
+    try:
+        results = jsonResponse["results"]
+    except KeyError:
+        raise ValueError("Invalid address")
     lat = results[0]["location"]["lat"]
     long = results[0]["location"]["lng"]
     accuracy = results[0]["accuracy"]
@@ -43,12 +47,22 @@ def jsonRequest(jsonUrl):
 address = getAddress()
 
 # read the api key from the file
-apiFile = open("apikey", "r")
+try:
+    apiFile = open("apikey", "r")
+except FileNotFoundError:
+    print("File containing api key cannot be opened.\nObtain an api key from https://www.geocod.io and save api key"
+          " to a file named apikey (no extensions)")
+    sys.exit(-1)
+
 apiKey = apiFile.read().strip()
 apiFile.close()
 
 url = generateUrl(address, apiKey)
 
-latitude, longitude = jsonRequest(url)
+try:
+    latitude, longitude = jsonRequest(url)
+except ValueError as e:
+    print(e)
+    sys.exit(-1)
 print("Latitude:\t%.5f" % latitude)
 print("Longitude:\t%.5f" % longitude)
