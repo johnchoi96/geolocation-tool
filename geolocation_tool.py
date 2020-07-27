@@ -17,8 +17,10 @@ def getAddress() -> str:
 
 def getManualAddress() -> str:
     addr = input("Enter full address> ")
+    addr = addr.strip()
     while len(addr) == 0 and addr == "":
         addr = input("Enter full address> ")
+        addr = addr.strip()
 
     return addr
 
